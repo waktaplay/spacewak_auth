@@ -14,7 +14,10 @@ export class TransformInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((data) => {
+        const request = context.switchToHttp().getRequest<Request>()
         const response = context.switchToHttp().getResponse<Response>()
+
+        if (request.url === '/') return data
 
         return {
           code: response.statusCode.toString().startsWith('2')

@@ -15,6 +15,7 @@ import { WithdrawalService } from './withdrawal/withdrawal.service'
 
 import { RepositoryModule } from 'src/repository/repository.module'
 import { usersProviders } from 'src/repository/models/users.providers'
+import { clientsProviders } from 'src/repository/models/clients.providers'
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { usersProviders } from 'src/repository/models/users.providers'
     // AppleStrategy, // TODO: Apple 로그인 구현
     DiscordStrategy,
     ...usersProviders,
+    ...clientsProviders,
   ],
 })
 export class AuthModule {}

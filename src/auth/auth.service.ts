@@ -1,13 +1,17 @@
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
 
 import { Model } from 'mongoose'
+import { Cache } from 'cache-manager'
+import { customAlphabet } from 'nanoid'
 
 import { Profile as GoogleProfile } from 'passport-google-oauth20'
 import { Profile as KakaoProfile } from 'passport-kakao'
 
 import { IUsers } from 'src/repository/schemas/users.schema'
 import { APIError } from 'src/common/dto/APIError.dto'
+import { IClient } from 'src/repository/schemas/clients.schema'
 
 type Profile = GoogleProfile | KakaoProfile
 
@@ -29,10 +33,57 @@ export class AuthService {
   private readonly logger = new Logger(AuthService.name)
 
   constructor(
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
     @Inject('USERS_MODEL')
     private readonly usersModel: Model<IUsers>,
+    @Inject('CLIENTS_MODEL')
+    private readonly clientsModel: Model<IClient>,
     private readonly jwtService: JwtService,
   ) {}
+
+  async getClient(clientId: string): Promise<Omit<IClient, 'secret'>> {
+    const client = await this.clientsModel.findOne(
+      {
+        id: clientId,
+      },
+      {
+        select: {
+          id: 1,
+          name: 1,
+          redirectUris: 1,
+        },
+      },
+    )
+
+    if (!client) {
+      throw new APIError(
+        HttpStatus.BAD_REQUEST,
+        '존재하지 않는 클라이언트입니다.',
+      )
+    }
+
+    return client
+  }
+
+  async requestValidate(clientId: string, redirectUri: string) {
+    const client = await this.clientsModel.findOne({
+      id: clientId,
+    })
+
+    if (!client) {
+      throw new APIError(
+        HttpStatus.BAD_REQUEST,
+        '존재하지 않는 클라이언트입니다.',
+      )
+    }
+
+    if (!client.redirectUris.includes(redirectUri)) {
+      throw new APIError(HttpStatus.BAD_REQUEST, '잘못된 redirect_uri 입니다.')
+    }
+
+    return client
+  }
 
   async validate(profile: Profile): Promise<Profile> {
     const userEmail =
@@ -104,7 +155,11 @@ export class AuthService {
     return profile
   }
 
-  token(user: User) {
+  async getAuthorizationCode(user: User) {
+    const authorizationCodeGenerator = customAlphabet(
+      '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+    )
+
     this.logger.debug(user)
 
     if (!user) {
@@ -148,6 +203,18 @@ export class AuthService {
     }
 
     delete user.profile
-    return user
+
+    const authorizationCode = authorizationCodeGenerator()
+    await this.cacheManager.set(
+      `authorization-code:${authorizationCode}`,
+      user,
+      10 * 60 * 1000,
+    )
+
+    this.logger.debug(`Authorization Code: ${authorizationCode}`)
+
+    return {
+      authorizationCode,
+    }
   }
 }

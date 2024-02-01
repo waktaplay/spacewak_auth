@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common'
 
 import APIError from '../dto/APIError.dto'
@@ -14,6 +15,8 @@ import { /*Request,*/ Response } from 'express'
 // HttpException, APIException ...
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(GlobalExceptionFilter.name)
+
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp()
     // const request = ctx.getRequest<Request>()
@@ -32,8 +35,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       message = exception.APIError
     }
 
+    this.logger.error(
+      `HTTP Exception: ${status} - '${JSON.stringify(message)}' at ${responseAt}`,
+    )
+
+    // TODO: APIError 값을 따로 정의하지 말고 APIException이랑 합치기
     if (message instanceof APIError) {
-      response.status(status).send({
+      response.status(message.status).send({
         code: HttpStatus[message.status],
         status: message.status,
 

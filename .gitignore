@@ -37,6 +37,8 @@ lerna-debug.log*
 *.env*
 !.env.example
 
+dev/
+
 # Yarn Zero-Installs
 .pnp.*
 .yarn/*

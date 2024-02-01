@@ -7,6 +7,8 @@ import { version } from '../package.json'
 import { GlobalExceptionFilter } from './common/filter/global-exception.filter'
 import { TransformInterceptor } from './common/interceptors/transform.interceptor'
 
+import * as session from 'express-session'
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
@@ -30,6 +32,14 @@ async function bootstrap() {
       // credentials: true,
     })
   }
+
+  app.use(
+    session({
+      secret: process.env.JWT_SECRET,
+      resave: false,
+      saveUninitialized: false,
+    }),
+  )
 
   app.useGlobalFilters(new GlobalExceptionFilter())
   app.useGlobalInterceptors(new TransformInterceptor())
