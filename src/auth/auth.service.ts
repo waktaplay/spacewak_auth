@@ -1,89 +1,24 @@
-import { JwtService } from '@nestjs/jwt'
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
 
 import { Model } from 'mongoose'
-import { Cache } from 'cache-manager'
-import { customAlphabet } from 'nanoid'
 
 import { Profile as GoogleProfile } from 'passport-google-oauth20'
 import { Profile as KakaoProfile } from 'passport-kakao'
 
-import { IUsers } from 'src/repository/schemas/users.schema'
+import { User } from 'src/common/types/user'
+import { Profile, SocialUser } from 'src/common/types/socialUser'
+
 import { APIError } from 'src/common/dto/APIError.dto'
-import { IClient } from 'src/repository/schemas/clients.schema'
-
-type Profile = GoogleProfile | KakaoProfile
-
-type User = {
-  accessToken: string
-  refreshToken: string
-  user?: {
-    provider: string
-    id: string
-    displayName: string
-    email: string
-    avatar: string
-  }
-  profile?: Profile
-}
+import { IUsers } from 'src/repository/schemas/users.schema'
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name)
 
   constructor(
-    @Inject(CACHE_MANAGER)
-    private readonly cacheManager: Cache,
     @Inject('USERS_MODEL')
     private readonly usersModel: Model<IUsers>,
-    @Inject('CLIENTS_MODEL')
-    private readonly clientsModel: Model<IClient>,
-    private readonly jwtService: JwtService,
   ) {}
-
-  async getClient(clientId: string): Promise<Omit<IClient, 'secret'>> {
-    const client = await this.clientsModel.findOne(
-      {
-        id: clientId,
-      },
-      {
-        select: {
-          id: 1,
-          name: 1,
-          redirectUris: 1,
-        },
-      },
-    )
-
-    if (!client) {
-      throw new APIError(
-        HttpStatus.BAD_REQUEST,
-        '존재하지 않는 클라이언트입니다.',
-      )
-    }
-
-    return client
-  }
-
-  async requestValidate(clientId: string, redirectUri: string) {
-    const client = await this.clientsModel.findOne({
-      id: clientId,
-    })
-
-    if (!client) {
-      throw new APIError(
-        HttpStatus.BAD_REQUEST,
-        '존재하지 않는 클라이언트입니다.',
-      )
-    }
-
-    if (!client.redirectUris.includes(redirectUri)) {
-      throw new APIError(HttpStatus.BAD_REQUEST, '잘못된 redirect_uri 입니다.')
-    }
-
-    return client
-  }
 
   async validate(profile: Profile): Promise<Profile> {
     const userEmail =
@@ -155,66 +90,55 @@ export class AuthService {
     return profile
   }
 
-  async getAuthorizationCode(user: User) {
-    const authorizationCodeGenerator = customAlphabet(
-      '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-    )
+  token(socialUser: SocialUser): User {
+    // this.logger.debug(user)
 
-    this.logger.debug(user)
-
-    if (!user) {
+    if (!socialUser) {
       throw new APIError(HttpStatus.UNAUTHORIZED, '로그인에 실패했습니다.')
     }
 
-    if (user.profile.provider === 'google') {
-      const _profile = user.profile as GoogleProfile
+    const user: User = {
+      accessToken: socialUser.accessToken,
+      refreshToken: socialUser.refreshToken,
+    }
+
+    if (socialUser.profile.provider === 'google') {
+      const profile = socialUser.profile as GoogleProfile
 
       user.user = {
-        provider: _profile.provider,
-        id: _profile.id,
-        displayName: _profile.displayName,
-        email: _profile.emails[0].value,
-        avatar: _profile.photos[0].value,
+        provider: profile.provider,
+        id: profile.id,
+        displayName: profile.displayName,
+        email: profile.emails[0].value,
+        avatar: profile.photos[0].value,
       }
     }
 
-    if (user.profile.provider === 'kakao') {
-      const _profile = user.profile as KakaoProfile
+    if (socialUser.profile.provider === 'kakao') {
+      const profile = socialUser.profile as KakaoProfile
 
       user.user = {
-        provider: _profile.provider,
-        id: _profile.id,
-        displayName: _profile.username,
-        email: _profile._json.kakao_account.email,
-        avatar: _profile._json.kakao_account.profile.profile_image_url,
+        provider: profile.provider,
+        id: profile.id,
+        displayName: profile.username,
+        email: profile._json.kakao_account.email,
+        avatar: profile._json.kakao_account.profile.profile_image_url,
       }
     }
 
-    if (user.profile.provider === 'discord') {
-      const _profile = JSON.parse(JSON.stringify(user.profile)) // deep copy with type `any`
+    if (socialUser.profile.provider === 'discord') {
+      const profile = JSON.parse(JSON.stringify(socialUser.profile)) // deep copy with type `any`
 
       user.user = {
-        provider: _profile.provider,
-        id: _profile.id,
-        displayName: _profile.global_name,
-        email: _profile.email,
-        avatar: `https://cdn.discordapp.com/avatars/${_profile.id}/${_profile.avatar}.webp?size=128`,
+        provider: profile.provider,
+        id: profile.id,
+        displayName: profile.global_name,
+        email: profile.email,
+        avatar: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.webp?size=128`,
       }
     }
 
-    delete user.profile
-
-    const authorizationCode = authorizationCodeGenerator()
-    await this.cacheManager.set(
-      `authorization-code:${authorizationCode}`,
-      user,
-      10 * 60 * 1000,
-    )
-
-    this.logger.debug(`Authorization Code: ${authorizationCode}`)
-
-    return {
-      authorizationCode,
-    }
+    this.logger.debug(user)
+    return user
   }
 }

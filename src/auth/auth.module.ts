@@ -8,6 +8,9 @@ import { KakaoStrategy } from './strategies/kakao.strategy'
 // import { AppleStrategy } from './strategies/apple.strategy'
 import { DiscordStrategy } from './strategies/discord.strategy'
 
+import { OAuth2Controller } from './oauth2/oauth2.controller'
+import { OAuth2Service } from './oauth2/oauth2.service'
+
 import { SignInController } from './signin/signin.controller'
 
 import { WithdrawalController } from './withdrawal/withdrawal.controller'
@@ -26,9 +29,10 @@ import { clientsProviders } from 'src/repository/models/clients.providers'
       signOptions: { expiresIn: '2d' },
     }),
   ],
-  controllers: [SignInController, WithdrawalController],
+  controllers: [OAuth2Controller, SignInController, WithdrawalController],
   providers: [
     AuthService,
+    OAuth2Service,
     WithdrawalService,
     GoogleStrategy,
     KakaoStrategy,

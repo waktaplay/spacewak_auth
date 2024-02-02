@@ -25,7 +25,10 @@ async function bootstrap() {
   }
 
   if (process.env.GLOBAL_CORS === '1') {
-    app.enableCors()
+    app.enableCors({
+      origin: '*',
+      credentials: true,
+    })
   } else {
     app.enableCors({
       origin: [],
