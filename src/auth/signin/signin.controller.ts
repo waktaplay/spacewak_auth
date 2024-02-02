@@ -15,7 +15,7 @@ import { GoogleOAuthGuard } from '../guards/google.guards'
 import { KakaoOAuthGuard } from '../guards/kakao.guards'
 import { DiscordOAuthGuard } from '../guards/discord.guards'
 
-@ApiTags('Auth - OAuth2 소셜 로그인 연동')
+@ApiTags('Auth - OAuth2 Social Sign-In (Private)')
 @Controller('signin')
 export class SignInController {
   private readonly logger = new Logger(SignInController.name)

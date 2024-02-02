@@ -8,6 +8,8 @@ import { Cache } from 'cache-manager'
 import { randomBytes } from 'crypto'
 import { customAlphabet } from 'nanoid'
 
+import { accessTokenDto } from './dto/accessToken.dto'
+
 import { User } from 'src/common/types/user'
 import { CachedAuthorizationCode } from 'src/common/types/cachedAuthorizationCode'
 
@@ -107,7 +109,7 @@ export class OAuth2Service {
     clientId: string,
     clientSecret: string,
     redirectUri: string,
-  ) {
+  ): Promise<accessTokenDto> {
     const cached = await this.cacheManager.get<CachedAuthorizationCode>(
       `authorization-code:${authorizationCode}`,
     )

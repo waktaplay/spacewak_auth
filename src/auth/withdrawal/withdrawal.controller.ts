@@ -14,7 +14,7 @@ import { kakaoWithdrawalRequestDto } from './dto/kakaoWithdrawalRequest.dto'
 
 import { APIResponseDto } from 'src/common/dto/APIResponse.dto'
 
-@ApiTags('Auth - Withdrawal Management')
+@ApiTags('Auth - OAuth2 Withdrawal Management')
 @Controller('withdrawal')
 export class WithdrawalController {
   private readonly logger = new Logger(WithdrawalController.name)

@@ -10,15 +10,18 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common'
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
+import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
 
 import { OAuth2Service } from './oauth2.service'
 import { accessTokenRequestDto } from './dto/accessTokenRequest.dto'
+import { accessTokenDto } from './dto/accessToken.dto'
 
-import { APIError } from 'src/common/dto/APIError.dto'
 import { User } from 'src/common/types/user'
 
-@ApiTags('Auth - OAuth2 통합 로그인 연동')
+import { APIError } from 'src/common/dto/APIError.dto'
+import { accessTokenResponseDto } from './dto/accessTokenResponse.dto'
+
+@ApiTags('Auth - OAuth2 Unified Sign-In')
 @Controller('oauth2')
 export class OAuth2Controller {
   private readonly logger = new Logger(OAuth2Controller.name)
@@ -155,7 +158,14 @@ export class OAuth2Controller {
     summary: 'Access Token 발급 (로그인 처리)',
     description: 'OAuth2를 통한 통합 로그인 Access Token 발급 요청',
   })
-  async accessTokenRequest(@Req() req, @Body() body: accessTokenRequestDto) {
+  @ApiOkResponse({
+    description: 'Access Token 발급 성공 시',
+    type: accessTokenResponseDto,
+  })
+  async accessTokenRequest(
+    @Req() req,
+    @Body() body: accessTokenRequestDto,
+  ): Promise<accessTokenDto> {
     try {
       const { code, grant_type, redirect_uri } = body
 
