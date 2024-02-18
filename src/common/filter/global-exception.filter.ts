@@ -7,8 +7,7 @@ import {
   Logger,
 } from '@nestjs/common'
 
-import APIError from '../dto/APIError.dto'
-import APIException from '../dto/APIException.dto'
+import { APIException } from '../dto/APIException.dto'
 
 import { /*Request,*/ Response } from 'express'
 
@@ -25,22 +24,19 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const responseAt: string = new Date().toISOString()
 
     let status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
-    let message: string | object | APIError = '내부 서버 오류가 발생했습니다.'
+    let message: string | object | APIException =
+      '내부 서버 오류가 발생했습니다.'
 
     if (exception instanceof HttpException) {
       status = exception.getStatus()
       message = exception.getResponse()
-    } else if (exception instanceof APIException) {
-      status = exception.status
-      message = exception.APIError
     }
 
     this.logger.error(
       `HTTP Exception: ${status} - '${JSON.stringify(message)}' at ${responseAt}`,
     )
 
-    // TODO: APIError 값을 따로 정의하지 말고 APIException이랑 합치기
-    if (message instanceof APIError) {
+    if (message instanceof APIException) {
       response.status(message.status).send({
         code: HttpStatus[message.status],
         status: message.status,

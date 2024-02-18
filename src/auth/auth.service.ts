@@ -8,7 +8,7 @@ import { Profile as KakaoProfile } from 'passport-kakao'
 import { User } from 'src/common/types/user'
 import { Profile, SocialUser } from 'src/common/types/socialUser'
 
-import { APIError } from 'src/common/dto/APIError.dto'
+import { APIException } from 'src/common/dto/APIException.dto'
 import { IUsers } from 'src/repository/schemas/users.schema'
 
 @Injectable()
@@ -35,14 +35,14 @@ export class AuthService {
     // 이미 가입되거나 탈퇴한 계정인 경우
     if (existingUser) {
       if (existingUser.id !== profile.id && !existingUser.withDrawed) {
-        throw new APIError(
+        throw new APIException(
           HttpStatus.CONFLICT,
           '이미 다른 계정과 연동된 이메일입니다.',
         )
       }
 
       if (existingUser.accessBlocked) {
-        throw new APIError(
+        throw new APIException(
           HttpStatus.FORBIDDEN,
           `서비스 이용이 제한된 계정입니다. (사유: ${existingUser.accessBlockedReason})`,
         )
@@ -94,7 +94,7 @@ export class AuthService {
     // this.logger.debug(user)
 
     if (!socialUser) {
-      throw new APIError(HttpStatus.UNAUTHORIZED, '로그인에 실패했습니다.')
+      throw new APIException(HttpStatus.UNAUTHORIZED, '로그인에 실패했습니다.')
     }
 
     const user: User = {

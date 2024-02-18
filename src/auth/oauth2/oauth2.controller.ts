@@ -18,7 +18,7 @@ import { accessTokenDto } from './dto/accessToken.dto'
 
 import { User } from 'src/common/types/user'
 
-import { APIError } from 'src/common/dto/APIError.dto'
+import { APIException } from 'src/common/dto/APIException.dto'
 import { accessTokenResponseDto } from './dto/accessTokenResponse.dto'
 
 @ApiTags('Auth - OAuth2 Unified Sign-In')
@@ -83,16 +83,16 @@ export class OAuth2Controller {
     try {
       // 요청값 검증
       if (responseType !== 'code') {
-        throw new APIError(
+        throw new APIException(
           HttpStatus.BAD_REQUEST,
-          'response_type의 값은 "code"여야 합니다.',
+          '"response_type"의 값은 "code"여야 합니다.',
         )
       }
 
       if (!clientId || !redirectUri || !scope) {
-        throw new APIError(
+        throw new APIException(
           HttpStatus.BAD_REQUEST,
-          'client_id, redirect_uri, scope는 필수입니다.',
+          '"client_id", "redirect_uri", "scope"는 필수입니다.',
         )
       }
 
@@ -100,14 +100,14 @@ export class OAuth2Controller {
         !strategy ||
         !['google', 'kakao', 'discord', 'apple'].includes(strategy)
       ) {
-        throw new APIError(
+        throw new APIException(
           HttpStatus.BAD_REQUEST,
-          'strategy의 값은 "google", "kakao", "discord", "apple" 중 하나여야 합니다.',
+          '"strategy"의 값은 "google", "kakao", "discord", "apple" 중 하나여야 합니다.',
         )
       }
 
       if (strategy === 'apple') {
-        throw new APIError(
+        throw new APIException(
           HttpStatus.BAD_REQUEST,
           'Apple 로그인은 아직 지원하지 않습니다.',
         )
@@ -169,34 +169,27 @@ export class OAuth2Controller {
     try {
       const { code, refresh_token, grant_type, redirect_uri } = body
 
-      if (!req.headers.Authorization) {
-        throw new APIError(
-          HttpStatus.UNAUTHORIZED,
-          '"Authorization" 헤더는 필수입니다.',
-        )
-      }
-
       const [clientId, clientSecret] =
-        req.headers.Authorization.split('Basic ')[1].split(':')
+        req.headers.Authorization?.split('Basic ')[1].split(':')
 
       // 요청값 검증
       if (!clientId || !clientSecret) {
-        throw new APIError(
+        throw new APIException(
           HttpStatus.UNAUTHORIZED,
           '"clientId"와 "clientSecret"은 필수입니다.',
         )
       }
 
       if (!['authorization_code', 'refresh_token'].includes(grant_type)) {
-        throw new APIError(
+        throw new APIException(
           HttpStatus.BAD_REQUEST,
-          'grant_type의 값은 "authorization_code", "refresh_token" 중 하나여야 합니다.',
+          '"grant_type"의 값은 "authorization_code", "refresh_token" 중 하나여야 합니다.',
         )
       }
 
       if (grant_type === 'authorization_code') {
         if (!code || !redirect_uri) {
-          throw new APIError(
+          throw new APIException(
             HttpStatus.BAD_REQUEST,
             '"code", "redirect_uri"는 필수입니다.',
           )
@@ -211,7 +204,7 @@ export class OAuth2Controller {
         )
       } else {
         if (!refresh_token) {
-          throw new APIError(
+          throw new APIException(
             HttpStatus.BAD_REQUEST,
             '"refresh_token"은 필수입니다.',
           )

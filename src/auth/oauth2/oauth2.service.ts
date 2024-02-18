@@ -12,7 +12,7 @@ import { User } from 'src/common/types/user'
 import { CachedAuthorizationCode } from 'src/common/types/cachedAuthorizationCode'
 
 import { accessTokenDto } from './dto/accessToken.dto'
-import { APIError } from 'src/common/dto/APIError.dto'
+import { APIException } from 'src/common/dto/APIException.dto'
 
 import { IClient } from 'src/repository/schemas/clients.schema'
 
@@ -43,7 +43,7 @@ export class OAuth2Service {
     )
 
     if (!client) {
-      throw new APIError(
+      throw new APIException(
         HttpStatus.BAD_REQUEST,
         '존재하지 않는 클라이언트입니다.',
       )
@@ -58,14 +58,17 @@ export class OAuth2Service {
     })
 
     if (!client) {
-      throw new APIError(
+      throw new APIException(
         HttpStatus.BAD_REQUEST,
         '존재하지 않는 클라이언트입니다.',
       )
     }
 
     if (!client.redirectUris.includes(redirectUri)) {
-      throw new APIError(HttpStatus.BAD_REQUEST, '잘못된 redirect_uri 입니다.')
+      throw new APIException(
+        HttpStatus.BAD_REQUEST,
+        '잘못된 redirect_uri 입니다.',
+      )
     }
 
     return client
@@ -111,18 +114,21 @@ export class OAuth2Service {
     )
 
     if (!cached) {
-      throw new APIError(
+      throw new APIException(
         HttpStatus.BAD_REQUEST,
         '유효하지 않은 Authorization Code입니다.',
       )
     }
 
     if (cached.client !== clientId) {
-      throw new APIError(HttpStatus.BAD_REQUEST, '잘못된 클라이언트입니다.')
+      throw new APIException(HttpStatus.BAD_REQUEST, '잘못된 클라이언트입니다.')
     }
 
     if (cached.redirectUri !== redirectUri) {
-      throw new APIError(HttpStatus.BAD_REQUEST, '잘못된 redirect_uri 입니다.')
+      throw new APIException(
+        HttpStatus.BAD_REQUEST,
+        '잘못된 redirect_uri 입니다.',
+      )
     }
 
     const client = await this.clientsModel.findOne({
@@ -131,7 +137,7 @@ export class OAuth2Service {
     })
 
     if (!client) {
-      throw new APIError(
+      throw new APIException(
         HttpStatus.BAD_REQUEST,
         '잘못된 클라이언트 정보입니다.',
       )
@@ -168,7 +174,7 @@ export class OAuth2Service {
     }>(`token:${token.sub}`)
 
     if (!token || validationData?.refreshToken !== refreshToken) {
-      throw new APIError(
+      throw new APIException(
         HttpStatus.BAD_REQUEST,
         '유효하지 않은 Refresh Token입니다.',
       )
@@ -180,7 +186,7 @@ export class OAuth2Service {
     })
 
     if (!client) {
-      throw new APIError(
+      throw new APIException(
         HttpStatus.BAD_REQUEST,
         '잘못된 클라이언트 정보입니다.',
       )
