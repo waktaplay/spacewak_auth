@@ -1,4 +1,4 @@
-import { JwtService } from '@nestjs/jwt'
+import { JsonWebTokenError, JwtService } from '@nestjs/jwt'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
 
@@ -166,49 +166,60 @@ export class OAuth2Service {
     clientSecret: string,
     refreshToken: string,
   ): Promise<accessTokenDto> {
-    const token = await this.jwtService.verifyAsync(refreshToken)
-    const validationData = await this.cacheManager.get<{
-      user: User
-      accessToken: string
-      refreshToken: string
-    }>(`token:${token.sub}`)
+    try {
+      const token = await this.jwtService.verifyAsync(refreshToken)
+      const validationData = await this.cacheManager.get<{
+        user: User
+        accessToken: string
+        refreshToken: string
+      }>(`token:${token.sub}`)
 
-    if (!token || validationData?.refreshToken !== refreshToken) {
-      throw new APIException(
-        HttpStatus.BAD_REQUEST,
-        '유효하지 않은 Refresh Token입니다.',
-      )
-    }
+      if (!token || validationData?.refreshToken !== refreshToken) {
+        throw new APIException(
+          HttpStatus.BAD_REQUEST,
+          '유효하지 않은 Refresh Token입니다.',
+        )
+      }
 
-    const client = await this.clientsModel.findOne({
-      id: clientId,
-      secret: clientSecret,
-    })
+      const client = await this.clientsModel.findOne({
+        id: clientId,
+        secret: clientSecret,
+      })
 
-    if (!client) {
-      throw new APIException(
-        HttpStatus.BAD_REQUEST,
-        '잘못된 클라이언트 정보입니다.',
-      )
-    }
+      if (!client) {
+        throw new APIException(
+          HttpStatus.BAD_REQUEST,
+          '잘못된 클라이언트 정보입니다.',
+        )
+      }
 
-    const user = validationData.user
+      const user = validationData.user
 
-    const { accessToken, refreshToken: renewedRefreshToken } =
-      await this.issueToken(user)
+      const { accessToken, refreshToken: renewedRefreshToken } =
+        await this.issueToken(user)
 
-    await this.cacheManager.del(`token:${user.user.id}`)
-    await this.cacheManager.set(`token:${user.user.id}`, {
-      user: user,
-      accessToken: accessToken,
-      refreshToken: renewedRefreshToken,
-    })
+      await this.cacheManager.del(`token:${user.user.id}`)
+      await this.cacheManager.set(`token:${user.user.id}`, {
+        user: user,
+        accessToken: accessToken,
+        refreshToken: renewedRefreshToken,
+      })
 
-    return {
-      access_token: accessToken,
-      refresh_token: renewedRefreshToken,
-      token_type: 'Bearer',
-      expires_in: ms('1h') / 1000,
+      return {
+        access_token: accessToken,
+        refresh_token: renewedRefreshToken,
+        token_type: 'Bearer',
+        expires_in: ms('1h') / 1000,
+      }
+    } catch (e) {
+      if (e instanceof JsonWebTokenError) {
+        throw new APIException(
+          HttpStatus.BAD_REQUEST,
+          `잘못된 요청입니다. (${e.message})`,
+        )
+      }
+
+      throw e
     }
   }
 

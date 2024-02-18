@@ -227,9 +227,9 @@ export class OAuth2Controller {
 
         // Refresh Token으로 Access Token 갱신
         return await this.oauth2Service.refreshAccessToken(
-          refresh_token,
           clientId,
           clientSecret,
+          refresh_token,
         )
       }
     } catch (e) {

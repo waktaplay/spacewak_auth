@@ -7,7 +7,7 @@ export class accessTokenRequestDto {
 
   /**
    * Access Token 발급 시 얻은 refresh_token
-   * @example 9d37086ce42e22d980b158fe5b971b2c1c1b205b
+   * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDQ1NjcwNTg1OTcyMDAzMDQwNzYiLCJpYXQiOjE3MDY4OTE1NzksImV4cCI6MTcwOTQ4MzU3OX0.j0fhOuROu2sNzUhiXeoimC6HR3Rf0d7pjZueGeVFXwI
    */
   refresh_token?: string
 

@@ -7,7 +7,7 @@ export class accessTokenDto {
 
   /**
    * 발급된 Refresh Token (Access Token 갱신 시 사용)
-   * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDQ1NjcwNTg1OTcyMDAzMDQwNzYiLCJlbWFpbCI6ImttczAyMTlrbXNAZ21haWwuY29tIiwicHJvdmlkZXIiOiJnb29nbGUiLCJpYXQiOjE3MDY4OTE1Nzl9.YVkyUuE7Ca-6sd9dQOW1OIgPQWtF6lDwt-wlv5p1neM
+   * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMDQ1NjcwNTg1OTcyMDAzMDQwNzYiLCJpYXQiOjE3MDY4OTE1NzksImV4cCI6MTcwOTQ4MzU3OX0.j0fhOuROu2sNzUhiXeoimC6HR3Rf0d7pjZueGeVFXwI
    */
   refresh_token: string
 
