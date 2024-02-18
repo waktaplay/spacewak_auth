@@ -11,7 +11,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, 'discord') {
     super({
       clientID: process.env.DISCORD_CLIENT_ID,
       clientSecret: process.env.DISCORD_CLIENT_SECRET,
-      callbackURL: 'http://localhost:4400/signin/discord',
+      callbackURL: 'https://auth.spacewak.net/signin/discord',
       scope: ['identify', 'email'],
     } as StrategyOptions)
   }

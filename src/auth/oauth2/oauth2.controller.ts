@@ -169,8 +169,19 @@ export class OAuth2Controller {
     try {
       const { code, refresh_token, grant_type, redirect_uri } = body
 
-      const [clientId, clientSecret] =
-        req.headers.Authorization?.split('Basic ')[1].split(':')
+      if (!req.headers.authorization) {
+        throw new APIException(
+          HttpStatus.UNAUTHORIZED,
+          '"Authorization" 헤더는 필수입니다.',
+        )
+      }
+
+      const [clientId, clientSecret] = Buffer.from(
+        req.headers.authorization.split('Basic ')[1],
+        'base64',
+      )
+        .toString('utf8')
+        .split(':')
 
       // 요청값 검증
       if (!clientId || !clientSecret) {
@@ -186,6 +197,10 @@ export class OAuth2Controller {
           '"grant_type"의 값은 "authorization_code", "refresh_token" 중 하나여야 합니다.',
         )
       }
+
+      this.logger.debug(
+        `Access Token Request: ${grant_type} ${code} ${refresh_token}`,
+      )
 
       if (grant_type === 'authorization_code') {
         if (!code || !redirect_uri) {

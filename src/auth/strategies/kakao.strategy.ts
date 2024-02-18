@@ -11,7 +11,7 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     super({
       clientID: process.env.KAKAO_CLIENT_ID,
       clientSecret: process.env.KAKAO_CLIENT_SECRET,
-      callbackURL: 'http://localhost:4400/signin/kakao',
+      callbackURL: 'https://auth.spacewak.net/signin/kakao',
       scope: ['profile_nickname', 'profile_image', 'account_email'],
     } as StrategyOption)
   }

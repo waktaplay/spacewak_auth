@@ -31,7 +31,7 @@ export class WithdrawalController {
     type: APIResponseDto,
   })
   async kakaoWithdrawal(
-    @Headers('Authorization') authorization,
+    @Headers('authorization') authorization,
     @Body() body: kakaoWithdrawalRequestDto,
   ): Promise<void> {
     if (authorization !== `KakaoAK ${process.env.KAKAO_ADMIN_KEY}`) {
