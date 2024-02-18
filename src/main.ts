@@ -8,7 +8,7 @@ import { version } from '../package.json'
 import { GlobalExceptionFilter } from './common/filter/global-exception.filter'
 import { TransformInterceptor } from './common/interceptors/transform.interceptor'
 
-import * as session from 'express-session'
+import session from 'express-session'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
