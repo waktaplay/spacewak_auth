@@ -5,17 +5,15 @@ import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
 import { Model } from 'mongoose'
 import { Cache } from 'cache-manager'
 
-import { randomBytes } from 'crypto'
+import ms from 'ms'
 import { customAlphabet } from 'nanoid'
-
-import { accessTokenDto } from './dto/accessToken.dto'
 
 import { User } from 'src/common/types/user'
 import { CachedAuthorizationCode } from 'src/common/types/cachedAuthorizationCode'
 
+import { accessTokenDto } from './dto/accessToken.dto'
 import { APIError } from 'src/common/dto/APIError.dto'
 
-import { IUsers } from 'src/repository/schemas/users.schema'
 import { IClient } from 'src/repository/schemas/clients.schema'
 
 @Injectable()
@@ -25,8 +23,6 @@ export class OAuth2Service {
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
-    @Inject('USERS_MODEL')
-    private readonly usersModel: Model<IUsers>,
     @Inject('CLIENTS_MODEL')
     private readonly clientsModel: Model<IClient>,
     private readonly jwtService: JwtService,
@@ -94,7 +90,7 @@ export class OAuth2Service {
         client: clientId,
         redirectUri: redirectUri,
       } as CachedAuthorizationCode,
-      10 * 60 * 1000,
+      ms('10m') / 1000,
     )
 
     this.logger.debug(`Authorization Code: ${authorizationCode}`)
@@ -117,7 +113,7 @@ export class OAuth2Service {
     if (!cached) {
       throw new APIError(
         HttpStatus.BAD_REQUEST,
-        '유효하지 않은 Authorization Code입니다',
+        '유효하지 않은 Authorization Code입니다.',
       )
     }
 
@@ -143,36 +139,99 @@ export class OAuth2Service {
 
     const user = cached.user as User
 
-    const accessToken = this.jwtService.sign(
+    const { accessToken, refreshToken } = await this.issueToken(user)
+
+    await this.cacheManager.set(`token:${user.user.id}`, {
+      user: user,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    })
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      token_type: 'Bearer',
+      expires_in: ms('1h') / 1000,
+    }
+  }
+
+  async refreshAccessToken(
+    clientId: string,
+    clientSecret: string,
+    refreshToken: string,
+  ): Promise<accessTokenDto> {
+    const token = await this.jwtService.verifyAsync(refreshToken)
+    const validationData = await this.cacheManager.get<{
+      user: User
+      accessToken: string
+      refreshToken: string
+    }>(`token:${token.sub}`)
+
+    if (!token || validationData?.refreshToken !== refreshToken) {
+      throw new APIError(
+        HttpStatus.BAD_REQUEST,
+        '유효하지 않은 Refresh Token입니다.',
+      )
+    }
+
+    const client = await this.clientsModel.findOne({
+      id: clientId,
+      secret: clientSecret,
+    })
+
+    if (!client) {
+      throw new APIError(
+        HttpStatus.BAD_REQUEST,
+        '잘못된 클라이언트 정보입니다.',
+      )
+    }
+
+    const user = validationData.user
+
+    const { accessToken, refreshToken: renewedRefreshToken } =
+      await this.issueToken(user)
+
+    await this.cacheManager.del(`token:${user.user.id}`)
+    await this.cacheManager.set(`token:${user.user.id}`, {
+      user: user,
+      accessToken: accessToken,
+      refreshToken: renewedRefreshToken,
+    })
+
+    return {
+      access_token: accessToken,
+      refresh_token: renewedRefreshToken,
+      token_type: 'Bearer',
+      expires_in: ms('1h') / 1000,
+    }
+  }
+
+  async issueToken(user: User) {
+    const iat = Math.floor(Date.now() / 1000)
+    const accessToken = await this.jwtService.signAsync(
       {
         sub: user.user.id,
-        email: user.user.email,
         provider: user.user.provider,
-        encData: randomBytes(32).toString('hex'),
-        iat: Math.floor(Date.now() / 1000),
+        profile: user.user,
+        iat: iat,
+        exp: iat + ms('1h') / 1000,
       },
       {
         expiresIn: '1h',
       },
     )
 
-    const refreshToken = this.jwtService.sign(
+    const refreshToken = await this.jwtService.signAsync(
       {
         sub: user.user.id,
-        email: user.user.email,
-        provider: user.user.provider,
-        iat: Math.floor(Date.now() / 1000),
+        iat: iat,
+        exp: iat + ms('30d') / 1000,
       },
       {
         expiresIn: '30d',
       },
     )
 
-    return {
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      token_type: 'Bearer',
-      expires_in: 3600,
-    }
+    return { accessToken, refreshToken }
   }
 }

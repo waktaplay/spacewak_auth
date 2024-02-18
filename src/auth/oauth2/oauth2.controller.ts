@@ -167,7 +167,14 @@ export class OAuth2Controller {
     @Body() body: accessTokenRequestDto,
   ): Promise<accessTokenDto> {
     try {
-      const { code, grant_type, redirect_uri } = body
+      const { code, refresh_token, grant_type, redirect_uri } = body
+
+      if (!req.headers.Authorization) {
+        throw new APIError(
+          HttpStatus.UNAUTHORIZED,
+          '"Authorization" 헤더는 필수입니다.',
+        )
+      }
 
       const [clientId, clientSecret] =
         req.headers.Authorization.split('Basic ')[1].split(':')
@@ -176,24 +183,47 @@ export class OAuth2Controller {
       if (!clientId || !clientSecret) {
         throw new APIError(
           HttpStatus.UNAUTHORIZED,
-          'Client ID와 Client Secret은 필수입니다.',
+          '"clientId"와 "clientSecret"은 필수입니다.',
         )
       }
 
-      if (grant_type !== 'authorization_code') {
+      if (!['authorization_code', 'refresh_token'].includes(grant_type)) {
         throw new APIError(
           HttpStatus.BAD_REQUEST,
-          'grant_type의 값은 "authorization_code"여야 합니다.',
+          'grant_type의 값은 "authorization_code", "refresh_token" 중 하나여야 합니다.',
         )
       }
 
-      // Access Token 발급
-      return await this.oauth2Service.issueAccessToken(
-        code,
-        clientId,
-        clientSecret,
-        redirect_uri,
-      )
+      if (grant_type === 'authorization_code') {
+        if (!code || !redirect_uri) {
+          throw new APIError(
+            HttpStatus.BAD_REQUEST,
+            '"code", "redirect_uri"는 필수입니다.',
+          )
+        }
+
+        // Access Token 발급
+        return await this.oauth2Service.issueAccessToken(
+          code,
+          clientId,
+          clientSecret,
+          redirect_uri,
+        )
+      } else {
+        if (!refresh_token) {
+          throw new APIError(
+            HttpStatus.BAD_REQUEST,
+            '"refresh_token"은 필수입니다.',
+          )
+        }
+
+        // Refresh Token으로 Access Token 갱신
+        return await this.oauth2Service.refreshAccessToken(
+          refresh_token,
+          clientId,
+          clientSecret,
+        )
+      }
     } catch (e) {
       throw new HttpException(
         e,

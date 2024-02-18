@@ -98,8 +98,8 @@ export class AuthService {
     }
 
     const user: User = {
-      accessToken: socialUser.accessToken,
-      refreshToken: socialUser.refreshToken,
+      accessToken: socialUser.socialAccessToken,
+      refreshToken: socialUser.socialRefreshToken,
     }
 
     if (socialUser.profile.provider === 'google') {

@@ -4,8 +4,8 @@ import { Profile as KakaoProfile } from 'passport-kakao'
 export type Profile = GoogleProfile | KakaoProfile
 
 export type SocialUser = {
-  accessToken: string
-  refreshToken: string
+  socialAccessToken: string
+  socialRefreshToken: string
   user?: {
     provider: string
     id: string
