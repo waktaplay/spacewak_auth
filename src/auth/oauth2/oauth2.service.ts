@@ -147,11 +147,14 @@ export class OAuth2Service {
 
     const { accessToken, refreshToken } = await this.issueToken(user)
 
-    await this.cacheManager.set(`token:${user.user.id}`, {
-      user: user,
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-    })
+    await this.cacheManager.set(
+      `token:${user.user.id}`,
+      {
+        user: user,
+        refreshToken: refreshToken,
+      },
+      ms('30d') / 1000,
+    )
 
     return {
       access_token: accessToken,
@@ -170,7 +173,6 @@ export class OAuth2Service {
       const token = await this.jwtService.verifyAsync(refreshToken)
       const validationData = await this.cacheManager.get<{
         user: User
-        accessToken: string
         refreshToken: string
       }>(`token:${token.sub}`)
 
@@ -199,11 +201,14 @@ export class OAuth2Service {
         await this.issueToken(user)
 
       await this.cacheManager.del(`token:${user.user.id}`)
-      await this.cacheManager.set(`token:${user.user.id}`, {
-        user: user,
-        accessToken: accessToken,
-        refreshToken: renewedRefreshToken,
-      })
+      await this.cacheManager.set(
+        `token:${user.user.id}`,
+        {
+          user: user,
+          refreshToken: renewedRefreshToken,
+        },
+        ms('30d') / 1000,
+      )
 
       return {
         access_token: accessToken,
