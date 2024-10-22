@@ -10,7 +10,7 @@ services:
       - MONGO_INITDB_DATABASE=waktaplay
 
   redis:
-    image: redis:7.2-alpine
+    image: redis:7.4-alpine
     restart: always
     ports:
       - 6379:6379
