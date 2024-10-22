@@ -281,6 +281,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@keyv/serialize@npm:*":
+  version: 1.0.1
+  resolution: "@keyv/serialize@npm:1.0.1"
+  dependencies:
+    buffer: "npm:^6.0.3"
+  checksum: 10/b47418bed4fb17e16e136d1071f71d12de6f566bbf4d484a611a2d7063e0e79aedb3164b51153054101b6b7eb2a2b349469d438f70a5fbac22a68f136a535ec4
+  languageName: node
+  linkType: hard
+
 "@ljharb/through@npm:^2.3.9":
   version: 2.3.11
   resolution: "@ljharb/through@npm:2.3.11"
@@ -1703,6 +1712,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"buffer@npm:^6.0.3":
+  version: 6.0.3
+  resolution: "buffer@npm:6.0.3"
+  dependencies:
+    base64-js: "npm:^1.3.1"
+    ieee754: "npm:^1.2.1"
+  checksum: 10/b6bc68237ebf29bdacae48ce60e5e28fc53ae886301f2ad9496618efac49427ed79096750033e7eab1897a4f26ae374ace49106a5758f38fb70c78c9fda2c3b1
+  languageName: node
+  linkType: hard
+
 "busboy@npm:^1.0.0":
   version: 1.6.0
   resolution: "busboy@npm:1.6.0"
@@ -1755,7 +1774,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cache-manager@npm:^5.2.2, cache-manager@npm:^5.4.0":
+"cache-manager@npm:^5.2.2":
   version: 5.4.0
   resolution: "cache-manager@npm:5.4.0"
   dependencies:
@@ -1763,6 +1782,15 @@ __metadata:
     lru-cache: "npm:^10.1.0"
     promise-coalesce: "npm:^1.1.2"
   checksum: 10/a8a2633d8668081143f2c1d23ee3fff9bfa2604b7f8f67d835aa909b5abb53095d46f7eb4c294632752bdc9d90cdc5bc082a2925670effbad94af7e231679f43
+  languageName: node
+  linkType: hard
+
+"cache-manager@npm:^6.0.0":
+  version: 6.1.1
+  resolution: "cache-manager@npm:6.1.1"
+  dependencies:
+    keyv: "npm:^5.1.0"
+  checksum: 10/2021f9e61d6cc956e1c833e4707802b1c0f4aca7d8c306d1ea0e7d8c9b28df8cff34915708c92cd5c7caef07551fd4cd1691ca1f7f0b31a70ab0d16d9972c338
   languageName: node
   linkType: hard
 
@@ -3170,7 +3198,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ieee754@npm:^1.1.13":
+"ieee754@npm:^1.1.13, ieee754@npm:^1.2.1":
   version: 1.2.1
   resolution: "ieee754@npm:1.2.1"
   checksum: 10/d9f2557a59036f16c282aaeb107832dc957a93d73397d89bbad4eb1130560560eb695060145e8e6b3b498b15ab95510226649a0b8f52ae06583575419fe10fc4
@@ -3581,6 +3609,15 @@ __metadata:
   dependencies:
     json-buffer: "npm:3.0.1"
   checksum: 10/167eb6ef64cc84b6fa0780ee50c9de456b422a1e18802209234f7c2cf7eae648c7741f32e50d7e24ccb22b24c13154070b01563d642755b156c357431a191e75
+  languageName: node
+  linkType: hard
+
+"keyv@npm:^5.1.0":
+  version: 5.1.2
+  resolution: "keyv@npm:5.1.2"
+  dependencies:
+    "@keyv/serialize": "npm:*"
+  checksum: 10/7c0ba679f95e48bbc9a8e8afed393b149e2d5874330767b6bf578a931880142b317cf419f3b51bbe636a7510f2fd921175051947496a057905078da5a74bab71
   languageName: node
   linkType: hard
 
@@ -5149,7 +5186,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^6.0.0"
     "@typescript-eslint/parser": "npm:^6.0.0"
     axios: "npm:^1.6.5"
-    cache-manager: "npm:^5.4.0"
+    cache-manager: "npm:^6.0.0"
     cache-manager-redis-yet: "npm:^4.1.2"
     eslint: "npm:^8.42.0"
     eslint-config-prettier: "npm:^9.0.0"
