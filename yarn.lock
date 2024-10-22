@@ -867,13 +867,13 @@ __metadata:
   linkType: hard
 
 "@types/passport-discord@npm:^0.1.11":
-  version: 0.1.11
-  resolution: "@types/passport-discord@npm:0.1.11"
+  version: 0.1.13
+  resolution: "@types/passport-discord@npm:0.1.13"
   dependencies:
     "@types/express": "npm:*"
     "@types/passport": "npm:*"
     "@types/passport-oauth2": "npm:*"
-  checksum: 10/2284f6cf0951c869bdefb57e76017b8e90e086801eb5a0ec7c3b678302a289a35b8e28890c84c36bc651d89fc28e73bdb566aca5a6784b472320c312cf05eb1b
+  checksum: 10/e0ba9cbdfcf4e07d86e5c5a126b15f1fa8f04cab6c3176bc77e0a930c49cc75e710976ed336b40ff916c29ded5d2ca9c3274b7370fa0ce069b9bbb4503b80ea7
   languageName: node
   linkType: hard
 
