@@ -1756,13 +1756,14 @@ __metadata:
   linkType: hard
 
 "cache-manager@npm:^5.2.2, cache-manager@npm:^5.4.0":
-  version: 5.4.0
-  resolution: "cache-manager@npm:5.4.0"
+  version: 5.7.6
+  resolution: "cache-manager@npm:5.7.6"
   dependencies:
+    eventemitter3: "npm:^5.0.1"
     lodash.clonedeep: "npm:^4.5.0"
-    lru-cache: "npm:^10.1.0"
+    lru-cache: "npm:^10.2.2"
     promise-coalesce: "npm:^1.1.2"
-  checksum: 10/a8a2633d8668081143f2c1d23ee3fff9bfa2604b7f8f67d835aa909b5abb53095d46f7eb4c294632752bdc9d90cdc5bc082a2925670effbad94af7e231679f43
+  checksum: 10/e8cc65a289aa4136255db2349dd15fa7acca398a233b560cba18f691d9cce39d8058531707d1358c67029e2d36f5b5b209e64339ffdb80a25d26d0682399a9b8
   languageName: node
   linkType: hard
 
@@ -2533,6 +2534,13 @@ __metadata:
   version: 1.8.1
   resolution: "etag@npm:1.8.1"
   checksum: 10/571aeb3dbe0f2bbd4e4fadbdb44f325fc75335cd5f6f6b6a091e6a06a9f25ed5392f0863c5442acb0646787446e816f13cbfc6edce5b07658541dff573cab1ff
+  languageName: node
+  linkType: hard
+
+"eventemitter3@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "eventemitter3@npm:5.0.1"
+  checksum: 10/ac6423ec31124629c84c7077eed1e6987f6d66c31cf43c6fcbf6c87791d56317ce808d9ead483652436df171b526fc7220eccdc9f3225df334e81582c3cf7dd5
   languageName: node
   linkType: hard
 
@@ -3704,10 +3712,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lru-cache@npm:^10.1.0":
-  version: 10.2.0
-  resolution: "lru-cache@npm:10.2.0"
-  checksum: 10/502ec42c3309c0eae1ce41afca471f831c278566d45a5273a0c51102dee31e0e250a62fa9029c3370988df33a14188a38e682c16143b794de78668de3643e302
+"lru-cache@npm:^10.2.2":
+  version: 10.4.3
+  resolution: "lru-cache@npm:10.4.3"
+  checksum: 10/e6e90267360476720fa8e83cc168aa2bf0311f3f2eea20a6ba78b90a885ae72071d9db132f40fda4129c803e7dcec3a6b6a6fbb44ca90b081630b810b5d6a41a
   languageName: node
   linkType: hard
 
