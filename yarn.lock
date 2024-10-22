@@ -889,12 +889,12 @@ __metadata:
   linkType: hard
 
 "@types/passport-jwt@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "@types/passport-jwt@npm:4.0.0"
+  version: 4.0.1
+  resolution: "@types/passport-jwt@npm:4.0.1"
   dependencies:
     "@types/jsonwebtoken": "npm:*"
     "@types/passport-strategy": "npm:*"
-  checksum: 10/f18d048b756356a80cda51a14e9cad51a97c86b162748373c433f9e2bb030c5947845efc03250a675e27596cdd4ca3500cc8db94e59bf428a566c34170ad40b8
+  checksum: 10/778f88eaefe39d845ba4824760f9b149c1e408249357514ea9b3d302c180af1faadc164af3fbf41596a23ad01f0a1c95501e193693f4db804f34713853fdc727
   languageName: node
   linkType: hard
 
