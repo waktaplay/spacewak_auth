@@ -3,10 +3,10 @@ import { JwtModule } from '@nestjs/jwt'
 import { HttpModule } from '@nestjs/axios'
 
 import { AuthService } from './auth.service'
+import { DiscordStrategy } from './strategies/discord.strategy'
 import { GoogleStrategy } from './strategies/google.strategy'
 import { KakaoStrategy } from './strategies/kakao.strategy'
-// import { AppleStrategy } from './strategies/apple.strategy'
-import { DiscordStrategy } from './strategies/discord.strategy'
+import { NaverStrategy } from './strategies/naver.strategy'
 
 import { OAuth2Controller } from './oauth2/oauth2.controller'
 import { OAuth2Service } from './oauth2/oauth2.service'
@@ -34,10 +34,10 @@ import { clientsProviders } from 'src/repository/models/clients.providers'
     AuthService,
     OAuth2Service,
     WithdrawalService,
+    DiscordStrategy,
     GoogleStrategy,
     KakaoStrategy,
-    // AppleStrategy, // TODO: Apple 로그인 구현
-    DiscordStrategy,
+    NaverStrategy,
     ...usersProviders,
     ...clientsProviders,
   ],

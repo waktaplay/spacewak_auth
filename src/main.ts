@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
-import { RedocModule, RedocOptions } from '@jozefazz/nestjs-redoc'
+import { NestjsRedoxModule } from 'nestjs-redox';
 
 import { AppModule } from './app.module'
 import { version } from '../package.json'
@@ -22,12 +22,10 @@ async function bootstrap() {
 
     const document = SwaggerModule.createDocument(app, config)
 
-    const redocOptions: RedocOptions = {
-      title: 'SpaceWak Auth API',
-    }
-
     await SwaggerModule.setup('docs', app, document)
-    await RedocModule.setup('redoc', app, document, redocOptions)
+    await NestjsRedoxModule.setup('redoc', app, document, {
+      standalone: true,
+    });
   }
 
   if (process.env.GLOBAL_CORS === '1') {

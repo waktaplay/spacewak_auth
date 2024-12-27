@@ -4,6 +4,7 @@ import { Model } from 'mongoose'
 
 import { Profile as GoogleProfile } from 'passport-google-oauth20'
 import { Profile as KakaoProfile } from 'passport-kakao'
+import { IProfile as NaverProfile } from 'passport-naver-oauth2'
 
 import { User } from 'src/common/types/user'
 import { Profile, SocialUser } from 'src/common/types/socialUser'
@@ -26,7 +27,9 @@ export class AuthService {
         ? (profile as GoogleProfile).emails[0].value
         : profile.provider === 'kakao'
           ? (profile as KakaoProfile)._json.kakao_account.email
-          : (profile as any).email
+          : profile.provider === 'naver'
+            ? (profile as NaverProfile).emails[0].value
+            : (profile as any).email
 
     const existingUser = await this.usersModel.findOne({
       email: userEmail,
@@ -102,6 +105,18 @@ export class AuthService {
       refreshToken: socialUser.socialRefreshToken,
     }
 
+    if (socialUser.profile.provider === 'discord') {
+      const profile = JSON.parse(JSON.stringify(socialUser.profile)) // deep copy with type `any`
+
+      user.user = {
+        provider: profile.provider,
+        id: profile.id,
+        displayName: profile.global_name,
+        email: profile.email,
+        avatar: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.webp?size=128`,
+      }
+    }
+
     if (socialUser.profile.provider === 'google') {
       const profile = socialUser.profile as GoogleProfile
 
@@ -126,15 +141,15 @@ export class AuthService {
       }
     }
 
-    if (socialUser.profile.provider === 'discord') {
-      const profile = JSON.parse(JSON.stringify(socialUser.profile)) // deep copy with type `any`
+    if (socialUser.profile.provider === 'naver') {
+      const profile = socialUser.profile as NaverProfile
 
       user.user = {
         provider: profile.provider,
         id: profile.id,
-        displayName: profile.global_name,
-        email: profile.email,
-        avatar: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.webp?size=128`,
+        displayName: profile.displayName,
+        email: profile.emails[0].value,
+        avatar: profile.photos[0].value,
       }
     }
 

@@ -17,6 +17,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name)
 
   catch(exception: any, host: ArgumentsHost) {
+    this.logger.error(exception);
+
     const ctx = host.switchToHttp()
     // const request = ctx.getRequest<Request>()
     const response = ctx.getResponse<Response>()
@@ -31,10 +33,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       status = exception.getStatus()
       message = exception.getResponse()
     }
-
-    this.logger.error(
-      `HTTP Exception: ${status} - '${JSON.stringify(message)}' at ${responseAt}`,
-    )
 
     if (message instanceof APIException) {
       response.status(message.status).send({

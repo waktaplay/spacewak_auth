@@ -2,31 +2,28 @@ import { PassportStrategy } from '@nestjs/passport'
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 
 import {
-  Profile,
-  Strategy,
-  VerifyCallback,
-  _StrategyOptionsBase,
-} from 'passport-google-oauth20'
+  NaverStrategy as Strategy,
+  StrategyOptions,
+} from 'passport-naver-oauth2'
 
 import { AuthService } from '../auth.service'
 
 @Injectable()
-export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+export class NaverStrategy extends PassportStrategy(Strategy, 'naver') {
   constructor(private authService: AuthService) {
     super({
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: 'https://auth.spacewak.net/signin/google',
-      scope: ['email', 'profile'],
+      clientID: process.env.NAVER_CLIENT_ID,
+      clientSecret: process.env.NAVER_CLIENT_SECRET,
+      callbackURL: 'https://auth.spacewak.net/signin/naver',
       passReqToCallback: false,
-    } as _StrategyOptionsBase)
+    } as StrategyOptions)
   }
 
   async validate(
     accessToken: string,
     refreshToken: string,
-    profile: Profile,
-    done: VerifyCallback,
+    profile: any,
+    done: any,
   ) {
     try {
       await this.authService.validate(profile)

@@ -11,9 +11,10 @@ import {
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 
 import { AuthService } from '../auth.service'
-import { GoogleOAuthGuard } from '../guards/google.guards'
-import { KakaoOAuthGuard } from '../guards/kakao.guards'
-import { DiscordOAuthGuard } from '../guards/discord.guards'
+import { DiscordOAuthGuard } from '../guards/discord.guard'
+import { GoogleOAuthGuard } from '../guards/google.guard'
+import { KakaoOAuthGuard } from '../guards/kakao.guard'
+import { NaverOAuthGuard } from '../guards/naver.guard'
 
 @ApiTags('Auth - OAuth2 Social Sign-In (Private)')
 @Controller('signin')
@@ -21,6 +22,28 @@ export class SignInController {
   private readonly logger = new Logger(SignInController.name)
 
   constructor(private readonly authService: AuthService) {}
+
+  @Get('discord')
+  @UseGuards(DiscordOAuthGuard)
+  @ApiOperation({
+    summary: 'Discord 로그인 리다이렉션',
+    description: 'Discord OAuth2.0을 통한 로그인 리다이렉트 처리',
+  })
+  async discordAuthCallback(@Req() req, @Res() res) {
+    try {
+      req.session.user = this.authService.token(req.user)
+
+      return res.redirect(
+        302,
+        `/oauth2/authorize?${new URLSearchParams(req.session.authorizeParams).toString()}`,
+      )
+    } catch (e) {
+      throw new HttpException(
+        e,
+        HttpStatus[(e.code as string) || 'INTERNAL_SERVER_ERROR'],
+      )
+    }
+  }
 
   @Get('google')
   @UseGuards(GoogleOAuthGuard)
@@ -66,35 +89,13 @@ export class SignInController {
     }
   }
 
-  // @Get('apple')
-  // @UseGuards(AppleOAuthGuard)
-  // @ApiOperation({
-  //   summary: 'Apple ID 로그인 리다이렉션',
-  //   description: 'Apple ID OAuth2.0을 통한 로그인 리다이렉트 처리',
-  // })
-  // async appleAuthCallback(@Req() req, @Res() res) {
-  //   try {
-  //     req.session.user = this.authService.token(req.user)
-
-  //     return res.redirect(
-  //       302,
-  //       `/oauth2/authorize?${new URLSearchParams(req.session.authorizeParams).toString()}`,
-  //     )
-  //   } catch (e) {
-  //     throw new HttpException(
-  //       e,
-  //       HttpStatus[(e.code as string) || 'INTERNAL_SERVER_ERROR'],
-  //     )
-  //   }
-  // }
-
-  @Get('discord')
-  @UseGuards(DiscordOAuthGuard)
+  @Get('naver')
+  @UseGuards(NaverOAuthGuard)
   @ApiOperation({
-    summary: 'Discord 로그인 리다이렉션',
-    description: 'Discord OAuth2.0을 통한 로그인 리다이렉트 처리',
+    summary: '네이버 로그인 리다이렉션',
+    description: '네이버 OAuth2.0을 통한 로그인 리다이렉트 처리',
   })
-  async discordAuthCallback(@Req() req, @Res() res) {
+  async naverAuthCallback(@Req() req, @Res() res) {
     try {
       req.session.user = this.authService.token(req.user)
 

@@ -59,9 +59,9 @@ export class OAuth2Controller {
   })
   @ApiQuery({
     name: 'strategy',
-    description: '로그인 전략 (google, kakao, discord, apple 중 하나)',
+    description: '로그인 전략 (discord, google, kakao, naver 중 하나)',
     example: 'google',
-    enum: ['google', 'kakao', 'discord', 'apple'],
+    enum: ['discord', 'google', 'kakao', 'naver'],
     required: true,
   })
   @ApiQuery({
@@ -77,7 +77,8 @@ export class OAuth2Controller {
     @Query('redirect_uri') redirectUri: string,
     @Query('response_type') responseType: string,
     @Query('scope') scope: string,
-    @Query('strategy') strategy: 'google' | 'kakao' | 'discord' | 'apple',
+    @Query('strategy')
+    strategy: 'discord' | 'google' | 'kakao' | 'naver',
     @Query('state') state?: string,
   ) {
     try {
@@ -98,18 +99,11 @@ export class OAuth2Controller {
 
       if (
         !strategy ||
-        !['google', 'kakao', 'discord', 'apple'].includes(strategy)
+        !['discord', 'google', 'kakao', 'naver'].includes(strategy)
       ) {
         throw new APIException(
           HttpStatus.BAD_REQUEST,
-          '"strategy"의 값은 "google", "kakao", "discord", "apple" 중 하나여야 합니다.',
-        )
-      }
-
-      if (strategy === 'apple') {
-        throw new APIException(
-          HttpStatus.BAD_REQUEST,
-          'Apple 로그인은 아직 지원하지 않습니다.',
+          '"strategy"의 값은 "discord", "google", "kakao", "naver" 중 하나여야 합니다.',
         )
       }
 
@@ -142,7 +136,7 @@ export class OAuth2Controller {
 
         return res.redirect(
           302,
-          `${redirectUri}?code=${authorizationCode}&state=${state}`,
+          `${redirectUri}?code=${authorizationCode}&state=${state}&provider=${strategy}`,
         )
       }
     } catch (e) {
